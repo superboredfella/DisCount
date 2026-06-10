@@ -17,6 +17,9 @@ export function useVoice(channelId) {
   const peersRef = useRef(new Map());
   const audioElsRef = useRef(new Map());
   const joiningRef = useRef(false);
+  
+  // Storage for early ICE candidates that arrive before the SDP offer/answer is processed
+  const candidateQueuesRef = useRef(new Map());
 
   const createPeer = useCallback((remoteUserId, initiator) => {
     if (peersRef.current.has(remoteUserId)) return peersRef.current.get(remoteUserId);
@@ -61,15 +64,37 @@ export function useVoice(channelId) {
     let pc = peersRef.current.get(fromUserId);
     if (!pc) pc = createPeer(fromUserId, false);
 
-    if (signal.sdp) {
-      await pc.setRemoteDescription(signal.sdp);
-      if (signal.sdp.type === 'offer') {
-        const answer = await pc.createAnswer();
-        await pc.setLocalDescription(answer);
-        emit('voice:signal', { channelId, targetUserId: fromUserId, signal: { sdp: answer } });
+    try {
+      if (signal.sdp) {
+        await pc.setRemoteDescription(new RTCSessionDescription(signal.sdp));
+        
+        if (signal.sdp.type === 'offer') {
+          const answer = await pc.createAnswer();
+          await pc.setLocalDescription(answer);
+          emit('voice:signal', { channelId, targetUserId: fromUserId, signal: { sdp: answer } });
+        }
+
+        // Process any ICE candidates that arrived too early for this peer
+        const queue = candidateQueuesRef.current.get(fromUserId) || [];
+        while (queue.length > 0) {
+          const cand = queue.shift();
+          await pc.addIceCandidate(new RTCIceCandidate(cand));
+        }
+        candidateQueuesRef.current.delete(fromUserId);
+
+      } else if (signal.candidate) {
+        // Safe check to prevent DOMException crashes if SDP hasn't settled yet
+        if (pc.remoteDescription && pc.remoteDescription.type) {
+          await pc.addIceCandidate(new RTCIceCandidate(signal.candidate));
+        } else {
+          if (!candidateQueuesRef.current.has(fromUserId)) {
+            candidateQueuesRef.current.set(fromUserId, []);
+          }
+          candidateQueuesRef.current.get(fromUserId).push(signal.candidate);
+        }
       }
-    } else if (signal.candidate) {
-      await pc.addIceCandidate(signal.candidate);
+    } catch (err) {
+      console.error("Failed to handle WebRTC signaling securely:", err);
     }
   }, [channelId, createPeer, emit]);
 
@@ -80,6 +105,7 @@ export function useVoice(channelId) {
     peersRef.current.clear();
     audioElsRef.current.forEach(a => { a.srcObject = null; });
     audioElsRef.current.clear();
+    candidateQueuesRef.current.clear();
   }, []);
 
   const join = useCallback(async () => {
@@ -133,20 +159,23 @@ export function useVoice(channelId) {
     }
   }, [deafened, muted, emit]);
 
+  // Safe explicitly checked subscription hook to avoid minification execution errors
   useEffect(() => {
     if (!channelId) return;
 
-    const unsubs = [
-      on('voice:participants', (list) => {
-        setParticipants(list);
-        if (list.length > 0) joiningRef.current = false;
-      }),
-      on('voice:signal', ({ fromUserId, signal }) => {
-        if (fromUserId !== user?.id) handleSignal(fromUserId, signal);
-      }),
-    ];
+    const unsubParticipants = on('voice:participants', (list) => {
+      setParticipants(list);
+      if (list.length > 0) joiningRef.current = false;
+    });
 
-    return () => unsubs.forEach(fn => fn?.());
+    const unsubSignal = on('voice:signal', ({ fromUserId, signal }) => {
+      if (fromUserId !== user?.id) handleSignal(fromUserId, signal);
+    });
+
+    return () => {
+      if (typeof unsubParticipants === 'function') unsubParticipants();
+      if (typeof unsubSignal === 'function') unsubSignal();
+    };
   }, [channelId, on, user, handleSignal]);
 
   useEffect(() => {
@@ -166,7 +195,7 @@ export function useVoice(channelId) {
       cleanupMedia();
       emit('voice:leave');
     };
-  }, [channelId]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [channelId, cleanupMedia, emit]);
 
   return {
     participants, connected, joined, muted, deafened, error,
