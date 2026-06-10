@@ -12,8 +12,8 @@ services:
     name: discont
     runtime: node
     plan: free
-    buildCommand: npm install && npm run build
-    startCommand: npm start
+    buildCommand: npm install --include=dev && npm run build
+    startCommand: npm run dev
     healthCheckPath: /
     envVars:
       - key: NODE_ENV
