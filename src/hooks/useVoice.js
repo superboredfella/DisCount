@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useApp } from '../context/AppContext';
+import { waitForSocketAuth } from './useSocket';
 
 const ICE_SERVERS = [{ urls: 'stun:stun.l.google.com:19302' }];
 
@@ -7,6 +8,7 @@ export function useVoice(channelId) {
   const { on, emit, user } = useApp();
   const [participants, setParticipants] = useState([]);
   const [connected, setConnected] = useState(false);
+  const [joined, setJoined] = useState(false);
   const [muted, setMuted] = useState(false);
   const [deafened, setDeafened] = useState(false);
   const [error, setError] = useState(null);
@@ -71,32 +73,46 @@ export function useVoice(channelId) {
     }
   }, [channelId, createPeer, emit]);
 
-  const join = useCallback(async () => {
-    setError(null);
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
-      localStreamRef.current = stream;
-      joiningRef.current = true;
-      emit('voice:join', { channelId });
-      setConnected(true);
-    } catch (err) {
-      setError('Microphone access denied or unavailable');
-    }
-  }, [channelId, emit]);
-
-  const leave = useCallback(() => {
+  const cleanupMedia = useCallback(() => {
     localStreamRef.current?.getTracks().forEach(t => t.stop());
     localStreamRef.current = null;
     peersRef.current.forEach(pc => pc.close());
     peersRef.current.clear();
     audioElsRef.current.forEach(a => { a.srcObject = null; });
     audioElsRef.current.clear();
+  }, []);
+
+  const join = useCallback(async () => {
+    if (!channelId || joiningRef.current) return;
+    setError(null);
+    joiningRef.current = true;
+    try {
+      await waitForSocketAuth();
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+      localStreamRef.current = stream;
+      emit('voice:join', { channelId });
+      setConnected(true);
+      setJoined(true);
+    } catch (err) {
+      joiningRef.current = false;
+      if (err.name === 'NotAllowedError' || err.name === 'NotFoundError') {
+        setError('Microphone access denied or unavailable');
+      } else {
+        setError('Could not connect to voice');
+      }
+    }
+  }, [channelId, emit]);
+
+  const leave = useCallback(() => {
+    cleanupMedia();
     emit('voice:leave');
     setConnected(false);
+    setJoined(false);
     setParticipants([]);
     setMuted(false);
     setDeafened(false);
-  }, [emit]);
+    joiningRef.current = false;
+  }, [cleanupMedia, emit]);
 
   const toggleMute = useCallback(() => {
     const next = !muted;
@@ -121,7 +137,10 @@ export function useVoice(channelId) {
     if (!channelId) return;
 
     const unsubs = [
-      on('voice:participants', setParticipants),
+      on('voice:participants', (list) => {
+        setParticipants(list);
+        if (list.length > 0) joiningRef.current = false;
+      }),
       on('voice:signal', ({ fromUserId, signal }) => {
         if (fromUserId !== user?.id) handleSignal(fromUserId, signal);
       }),
@@ -137,15 +156,20 @@ export function useVoice(channelId) {
         createPeer(p.userId, true);
       }
     });
-    joiningRef.current = false;
+    if (participants.some(p => p.userId === user.id)) {
+      joiningRef.current = false;
+    }
   }, [participants, connected, user, createPeer]);
 
   useEffect(() => {
-    return () => leave();
+    return () => {
+      cleanupMedia();
+      emit('voice:leave');
+    };
   }, [channelId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return {
-    participants, connected, muted, deafened, error,
+    participants, connected, joined, muted, deafened, error,
     join, leave, toggleMute, toggleDeafen,
   };
 }

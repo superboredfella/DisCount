@@ -8,6 +8,20 @@
   overflow: hidden;
 }
 
+.gradient {
+  box-shadow: 0 0 0 2px var(--bg-tertiary, #2b2d31), 0 0 0 4px transparent;
+  background-clip: padding-box;
+}
+
+.gradient::before {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: 50%;
+  background: var(--ring-gradient, linear-gradient(135deg, #5865f2, #7289da));
+  z-index: -1;
+}
+
 .sm { width: 32px; height: 32px; font-size: 1rem; }
 .md { width: 40px; height: 40px; font-size: 1.25rem; }
 .lg { width: 80px; height: 80px; font-size: 2.5rem; }

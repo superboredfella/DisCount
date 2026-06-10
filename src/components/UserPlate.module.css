@@ -1,0 +1,12 @@
+.plate {
+  display: inline-block;
+  font-weight: 600;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-size: 200% 200%;
+}
+
+.sm { font-size: 0.85rem; }
+.md { font-size: 0.9rem; }
+.lg { font-size: 1rem; }

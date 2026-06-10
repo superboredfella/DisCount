@@ -5,7 +5,7 @@ import MessageInput from './MessageInput';
 import styles from './ChatArea.module.css';
 
 export default function ChatArea() {
-  const { activeChannel, activeServer } = useApp();
+  const { activeChannel, activeServer, setMobileView } = useApp();
   const bottomRef = useRef(null);
 
   useEffect(() => {
@@ -19,6 +19,14 @@ export default function ChatArea() {
       <header className={styles.header}>
         <span className={styles.hash}>#</span>
         <h2>{activeChannel.name}</h2>
+        <button
+          type="button"
+          className={styles.membersBtn}
+          onClick={() => setMobileView('members')}
+          title="Show members"
+        >
+          👥
+        </button>
       </header>
       <MessageList bottomRef={bottomRef} />
       <MessageInput />

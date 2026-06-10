@@ -96,3 +96,34 @@ input:focus, textarea:focus {
 ::-webkit-scrollbar-thumb:hover {
   background: var(--text-muted);
 }
+
+@media (max-width: 768px) {
+  [data-mobile-view="channels"] .main-area,
+  [data-mobile-view="channels"] .member-panel {
+    display: none !important;
+  }
+
+  [data-mobile-view="main"] .server-rail,
+  [data-mobile-view="main"] .channel-sidebar,
+  [data-mobile-view="main"] .member-panel {
+    display: none !important;
+  }
+
+  [data-mobile-view="members"] .main-area,
+  [data-mobile-view="members"] .server-rail,
+  [data-mobile-view="members"] .channel-sidebar {
+    display: none !important;
+  }
+
+  [data-mobile-view="main"] .main-area,
+  [data-mobile-view="channels"] .channel-sidebar,
+  [data-mobile-view="members"] .member-panel {
+    display: flex !important;
+    flex: 1;
+    min-width: 0;
+  }
+
+  [data-has-server="true"][data-mobile-view="channels"] .server-rail {
+    display: none;
+  }
+}

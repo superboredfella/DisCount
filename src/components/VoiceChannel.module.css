@@ -54,10 +54,53 @@
   border-radius: var(--radius-lg);
   border: 2px solid transparent;
   transition: border-color var(--transition);
+  background-image: var(--plate-gradient, none);
+  background-origin: border-box;
+  background-clip: padding-box, border-box;
+}
+
+.plate {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .card:not(.muted) {
   border-color: var(--success);
+}
+
+.status {
+  text-align: center;
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+}
+
+.errorBox {
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.errorBox button {
+  margin-top: 0.5rem;
+  padding: 0.4rem 0.75rem;
+  background: var(--accent);
+  color: white;
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+}
+
+.membersBtn {
+  margin-left: auto;
+  font-size: 1.1rem;
+  opacity: 0.7;
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .membersBtn {
+    display: block;
+  }
 }
 
 .muted {
@@ -68,6 +111,7 @@
   font-weight: 600;
   font-size: 0.9rem;
   text-align: center;
+  display: none;
 }
 
 .badges {

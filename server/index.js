@@ -226,6 +226,35 @@ app.post('/api/servers/:id/channels', auth, (req, res) => {
   res.json(channel);
 });
 
+app.patch('/api/channels/:id', auth, (req, res) => {
+  const channel = db.getChannel(req.params.id);
+  if (!channel) return res.status(404).json({ error: 'Channel not found' });
+  const { name } = req.body;
+  if (!name?.trim()) return res.status(400).json({ error: 'Channel name required' });
+  const normalized = channel.type === 'text'
+    ? name.trim().toLowerCase().replace(/\s+/g, '-')
+    : name.trim();
+  const updated = db.updateChannel(req.params.id, { name: normalized });
+  io.to(`server:${channel.server_id}`).emit('channel:update', updated);
+  res.json(updated);
+});
+
+app.delete('/api/channels/:id', auth, (req, res) => {
+  const channel = db.getChannel(req.params.id);
+  if (!channel) return res.status(404).json({ error: 'Channel not found' });
+  const deleted = db.deleteChannel(req.params.id);
+  io.to(`server:${channel.server_id}`).emit('channel:delete', { id: channel.id, server_id: channel.server_id });
+  res.json({ ok: true, channel: deleted });
+});
+
+app.delete('/api/messages/:id', auth, (req, res) => {
+  const result = db.deleteMessage(req.params.id, req.userId);
+  if (result === null) return res.status(404).json({ error: 'Message not found' });
+  if (result === false) return res.status(403).json({ error: 'Cannot delete this message' });
+  io.to(`channel:${result.channel_id}`).emit('message:delete', { id: result.id, channelId: result.channel_id });
+  res.json({ ok: true });
+});
+
 app.get('/api/servers/:id/members', auth, (req, res) => {
   res.json(db.getServerMembers(req.params.id));
 });
@@ -284,6 +313,14 @@ io.on('connection', (socket) => {
     if (!userId || !content?.trim()) return;
     const msg = db.createMessage({ id: uuid(), channelId, userId, content: content.trim() });
     io.to(`channel:${channelId}`).emit('message:new', msg);
+  });
+
+  socket.on('message:delete', ({ messageId }) => {
+    if (!userId) return;
+    const result = db.deleteMessage(messageId, userId);
+    if (result && result !== false) {
+      io.to(`channel:${result.channel_id}`).emit('message:delete', { id: result.id, channelId: result.channel_id });
+    }
   });
 
   socket.on('typing:start', ({ channelId }) => {

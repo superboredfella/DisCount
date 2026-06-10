@@ -26,8 +26,24 @@ function JoinRedirect() {
   return null;
 }
 
+function MainContent() {
+  const { activeServer, activeChannel } = useApp();
+
+  if (!activeServer) return <Home />;
+
+  if (!activeChannel) {
+    return (
+      <main className={styles.noChannel}>
+        <p>Select a channel to get started</p>
+      </main>
+    );
+  }
+
+  return activeChannel.type === 'voice' ? <VoiceChannel /> : <ChatArea />;
+}
+
 function Main() {
-  const { user, loading, activeServer, activeChannel, panel } = useApp();
+  const { user, loading, activeServer, panel, mobileView, setMobileView } = useApp();
 
   if (loading) {
     return <div className={styles.loading}>Loading...</div>;
@@ -35,14 +51,27 @@ function Main() {
 
   if (!user) return <Auth />;
 
-  const isVoice = activeChannel?.type === 'voice';
-
   return (
-    <div className={styles.app}>
+    <div
+      className={styles.app}
+      data-mobile-view={mobileView}
+      data-has-server={activeServer ? 'true' : 'false'}
+    >
       <JoinRedirect />
       <ServerRail />
       <Sidebar />
-      {activeServer ? (isVoice ? <VoiceChannel /> : <ChatArea />) : <Home />}
+      <div className={`${styles.mainArea} main-area`}>
+        {activeServer && mobileView === 'main' && (
+          <button
+            type="button"
+            className={styles.mobileBack}
+            onClick={() => setMobileView('channels')}
+          >
+            ← Channels
+          </button>
+        )}
+        <MainContent />
+      </div>
       {activeServer && <MemberList />}
       {panel === 'profile' && <ProfilePanel />}
       {panel === 'settings' && <SettingsPanel />}

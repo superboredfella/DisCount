@@ -314,6 +314,29 @@ export function createChannel({ id, serverId, name, type = 'text', categoryId = 
   return db.prepare('SELECT * FROM channels WHERE id = ?').get(id);
 }
 
+export function updateChannel(id, fields) {
+  const allowed = ['name'];
+  const updates = [];
+  const values = [];
+  for (const [key, val] of Object.entries(fields)) {
+    if (allowed.includes(key) && val != null) {
+      updates.push(`${key} = ?`);
+      values.push(val);
+    }
+  }
+  if (updates.length === 0) return getChannel(id);
+  values.push(id);
+  db.prepare(`UPDATE channels SET ${updates.join(', ')} WHERE id = ?`).run(...values);
+  return getChannel(id);
+}
+
+export function deleteChannel(id) {
+  const channel = getChannel(id);
+  if (!channel) return null;
+  db.prepare('DELETE FROM channels WHERE id = ?').run(id);
+  return channel;
+}
+
 export function getChannelMessages(channelId, limit = 50, before = null) {
   if (before) {
     return db.prepare(`
@@ -342,6 +365,22 @@ export function createMessage({ id, channelId, userId, content }) {
     FROM messages m JOIN users u ON m.user_id = u.id
     WHERE m.id = ?
   `).get(id);
+}
+
+export function getMessage(id) {
+  return db.prepare(`
+    SELECT m.*, u.username, u.display_name, u.avatar, u.accent_color
+    FROM messages m JOIN users u ON m.user_id = u.id
+    WHERE m.id = ?
+  `).get(id);
+}
+
+export function deleteMessage(id, userId) {
+  const msg = db.prepare('SELECT * FROM messages WHERE id = ?').get(id);
+  if (!msg) return null;
+  if (msg.user_id !== userId) return false;
+  db.prepare('DELETE FROM messages WHERE id = ?').run(id);
+  return msg;
 }
 
 export function getServerMembers(serverId) {

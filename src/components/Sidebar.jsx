@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
 import UserBar from './UserBar';
 import InviteModal from './InviteModal';
@@ -9,7 +9,8 @@ import styles from './Sidebar.module.css';
 export default function Sidebar() {
   const {
     activeServer, categories, channels, activeChannel, voiceState,
-    selectChannel, createChannel, createCategory,
+    selectChannel, createChannel, createCategory, updateChannel, deleteChannel,
+    setMobileView,
   } = useApp();
   const [showInvite, setShowInvite] = useState(false);
   const [showServerSettings, setShowServerSettings] = useState(false);
@@ -19,6 +20,18 @@ export default function Sidebar() {
   const [channelType, setChannelType] = useState('text');
   const [channelCategory, setChannelCategory] = useState('');
   const [categoryName, setCategoryName] = useState('');
+  const [menuChannel, setMenuChannel] = useState(null);
+  const [renameName, setRenameName] = useState('');
+  const menuRef = useRef(null);
+
+  useEffect(() => {
+    if (!menuChannel) return;
+    const close = (e) => {
+      if (menuRef.current && !menuRef.current.contains(e.target)) setMenuChannel(null);
+    };
+    document.addEventListener('click', close);
+    return () => document.removeEventListener('click', close);
+  }, [menuChannel]);
 
   if (!activeServer) return null;
 
@@ -43,21 +56,50 @@ export default function Sidebar() {
     setShowNewCategory(false);
   };
 
+  const openMenu = (e, ch) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setMenuChannel(ch);
+    setRenameName(ch.name);
+  };
+
+  const handleRename = async (e) => {
+    e.preventDefault();
+    if (!menuChannel || !renameName.trim()) return;
+    await updateChannel(menuChannel.id, renameName.trim());
+    setMenuChannel(null);
+  };
+
+  const handleDelete = async () => {
+    if (!menuChannel) return;
+    if (!window.confirm(`Delete channel #${menuChannel.name}? This cannot be undone.`)) return;
+    await deleteChannel(menuChannel.id);
+    setMenuChannel(null);
+  };
+
   const renderChannel = (ch) => {
     const inVoice = voiceState[ch.id] || [];
     const isVoice = ch.type === 'voice';
 
     return (
-      <div key={ch.id}>
+      <div key={ch.id} className={styles.channelWrap}>
         <button
           className={`${styles.channel} ${activeChannel?.id === ch.id ? styles.active : ''}`}
           onClick={() => selectChannel(ch)}
+          onContextMenu={(e) => openMenu(e, ch)}
         >
           <span className={styles.channelIcon}>{isVoice ? '🔊' : '#'}</span>
           {ch.name}
           {isVoice && inVoice.length > 0 && (
             <span className={styles.voiceCount}>{inVoice.length}</span>
           )}
+          <span
+            className={styles.channelMenuBtn}
+            onClick={(e) => openMenu(e, ch)}
+            title="Channel options"
+          >
+            ⋮
+          </span>
         </button>
         {isVoice && inVoice.length > 0 && (
           <div className={styles.voiceUsers}>
@@ -78,13 +120,21 @@ export default function Sidebar() {
   const sortedCategories = [...categories].sort((a, b) => a.position - b.position);
 
   return (
-    <aside className={styles.sidebar}>
+    <aside className={`${styles.sidebar} channel-sidebar`}>
       <header className={styles.header}>
         <button className={styles.serverTitle} onClick={() => setShowServerSettings(true)}>
           <IconDisplay value={activeServer.icon} size="sm" />
           <h2>{activeServer.name}</h2>
         </button>
         <button onClick={() => setShowInvite(true)} title="Invite friends">📋</button>
+        <button
+          type="button"
+          className={styles.membersBtn}
+          onClick={() => setMobileView('members')}
+          title="Show members"
+        >
+          👥
+        </button>
       </header>
 
       <div className={styles.channels}>
@@ -125,6 +175,36 @@ export default function Sidebar() {
 
       {showInvite && <InviteModal onClose={() => setShowInvite(false)} />}
       {showServerSettings && <ServerSettingsModal onClose={() => setShowServerSettings(false)} />}
+
+      {menuChannel && (
+        <div className={styles.modal} onClick={() => setMenuChannel(null)}>
+          <form
+            ref={menuRef}
+            className={styles.modalCard}
+            onClick={e => e.stopPropagation()}
+            onSubmit={handleRename}
+          >
+            <h3>Channel settings</h3>
+            <p className={styles.menuHint}>
+              {menuChannel.type === 'voice' ? '🔊' : '#'} {menuChannel.name}
+            </p>
+            <label>Rename channel</label>
+            <input
+              value={renameName}
+              onChange={e => setRenameName(e.target.value)}
+              autoFocus
+              required
+            />
+            <div className={styles.actions}>
+              <button type="button" className={styles.danger} onClick={handleDelete}>
+                Delete channel
+              </button>
+              <button type="button" onClick={() => setMenuChannel(null)}>Cancel</button>
+              <button type="submit" className={styles.primary}>Save</button>
+            </div>
+          </form>
+        </div>
+      )}
 
       {showNewChannel && (
         <div className={styles.modal} onClick={() => setShowNewChannel(false)}>

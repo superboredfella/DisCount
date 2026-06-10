@@ -42,8 +42,13 @@ export const api = {
       method: 'POST',
       body: JSON.stringify({ name, type, categoryId }),
     }),
+  updateChannel: (id, name) =>
+    request(`/channels/${id}`, { method: 'PATCH', body: JSON.stringify({ name }) }),
+  deleteChannel: (id) =>
+    request(`/channels/${id}`, { method: 'DELETE' }),
   getMembers: (serverId) => request(`/servers/${serverId}/members`),
   getMessages: (channelId, before) =>
     request(`/channels/${channelId}/messages${before ? `?before=${before}` : ''}`),
+  deleteMessage: (id) => request(`/messages/${id}`, { method: 'DELETE' }),
   getVoiceParticipants: (channelId) => request(`/voice/${channelId}/participants`),
 };

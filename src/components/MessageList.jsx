@@ -1,5 +1,6 @@
 import { useApp } from '../context/AppContext';
 import Avatar from './Avatar';
+import UserPlate from './UserPlate';
 import styles from './MessageList.module.css';
 
 function formatTime(ts) {
@@ -12,7 +13,7 @@ function formatTime(ts) {
 }
 
 export default function MessageList({ bottomRef }) {
-  const { messages, settings } = useApp();
+  const { messages, settings, user, deleteMessage } = useApp();
 
   if (!messages.length) {
     return (
@@ -30,12 +31,18 @@ export default function MessageList({ bottomRef }) {
   let lastUserId = null;
   let lastTime = 0;
 
+  const handleDelete = async (msg) => {
+    if (!window.confirm('Delete this message?')) return;
+    await deleteMessage(msg.id);
+  };
+
   return (
     <div className={styles.list}>
       {messages.map((msg) => {
         const grouped = msg.user_id === lastUserId && (msg.created_at - lastTime) < 300000;
         lastUserId = msg.user_id;
         lastTime = msg.created_at;
+        const isOwn = user?.id === msg.user_id;
 
         return (
           <div
@@ -44,15 +51,13 @@ export default function MessageList({ bottomRef }) {
             style={{ marginBottom: grouped ? '0' : 'var(--message-spacing)' }}
           >
             {!grouped && settings.showAvatars && (
-              <Avatar value={msg.avatar} size="md" accentColor={msg.accent_color} />
+              <Avatar value={msg.avatar} size="md" accentColor={msg.accent_color} gradient />
             )}
             {!grouped && !settings.showAvatars && <div className={styles.avatarSpacer} />}
             <div className={styles.content}>
               {!grouped && (
                 <div className={styles.meta}>
-                  <span className={styles.author} style={{ color: msg.accent_color || 'var(--text-primary)' }}>
-                    {msg.display_name}
-                  </span>
+                  <UserPlate name={msg.display_name} accentColor={msg.accent_color} size="md" />
                   {settings.showTimestamps && (
                     <span className={styles.time}>{formatTime(msg.created_at)}</span>
                   )}
@@ -60,6 +65,16 @@ export default function MessageList({ bottomRef }) {
               )}
               <p className={styles.text}>{msg.content}</p>
             </div>
+            {isOwn && (
+              <button
+                type="button"
+                className={styles.deleteBtn}
+                onClick={() => handleDelete(msg)}
+                title="Delete message"
+              >
+                🗑
+              </button>
+            )}
           </div>
         );
       })}

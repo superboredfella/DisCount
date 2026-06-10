@@ -26,3 +26,16 @@
   font-size: 1rem;
   font-weight: 600;
 }
+
+.membersBtn {
+  margin-left: auto;
+  font-size: 1.1rem;
+  opacity: 0.7;
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .membersBtn {
+    display: block;
+  }
+}

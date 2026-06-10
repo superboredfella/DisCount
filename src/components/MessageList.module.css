@@ -44,6 +44,25 @@
   background: var(--bg-hover);
 }
 
+.deleteBtn {
+  opacity: 0;
+  font-size: 0.85rem;
+  padding: 0.25rem 0.4rem;
+  border-radius: var(--radius-sm);
+  align-self: center;
+  flex-shrink: 0;
+  transition: opacity var(--transition);
+}
+
+.message:hover .deleteBtn {
+  opacity: 0.6;
+}
+
+.deleteBtn:hover {
+  opacity: 1 !important;
+  background: var(--bg-active);
+}
+
 .message.grouped {
   margin-top: -0.15rem;
 }

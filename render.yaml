@@ -13,7 +13,11 @@ services:
     runtime: node
     plan: free
     buildCommand: npm install --include=dev && npm run build
+<<<<<<< HEAD
     startCommand: npm run dev
+=======
+    startCommand: npm start
+>>>>>>> 5b3b53c (Mobile support & More)
     healthCheckPath: /
     envVars:
       - key: NODE_ENV

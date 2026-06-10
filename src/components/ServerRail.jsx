@@ -49,7 +49,7 @@ export default function ServerRail() {
   };
 
   return (
-    <nav className={styles.rail}>
+    <nav className={`${styles.rail} server-rail`}>
       <button
         className={`${styles.serverBtn} ${styles.home} ${!activeServer ? styles.active : ''}`}
         onClick={() => selectServer(null)}

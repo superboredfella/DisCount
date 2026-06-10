@@ -1,4 +1,5 @@
 import { useApp } from '../context/AppContext';
+import { accentGradient } from '../utils/color';
 import Avatar from './Avatar';
 import styles from './UserBar.module.css';
 
@@ -21,9 +22,19 @@ export default function UserBar() {
           size="sm"
           accentColor={user.accentColor}
           status={STATUS_COLORS[user.status] || STATUS_COLORS.offline}
+          gradient
         />
         <div className={styles.info}>
-          <span className={styles.name}>{user.displayName}</span>
+          <span
+            className={styles.name}
+            style={{
+              backgroundImage: accentGradient(user.accentColor),
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+            }}
+          >
+            {user.displayName}
+          </span>
           <span className={styles.sub}>{user.customStatus || user.username}</span>
         </div>
       </button>

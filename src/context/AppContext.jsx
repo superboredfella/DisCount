@@ -21,6 +21,7 @@ export function AppProvider({ children }) {
     } catch { return DEFAULT_SETTINGS; }
   });
   const [panel, setPanel] = useState(null);
+  const [mobileView, setMobileView] = useState('channels');
   const [loading, setLoading] = useState(true);
   const { on, emit } = useSocket();
 
@@ -102,6 +103,7 @@ export function AppProvider({ children }) {
     setMessages([]);
     setVoiceState({});
     if (server) {
+      setMobileView('channels');
       emit('server:join', server.id);
       const [layout, mem] = await Promise.all([
         loadLayout(server.id),
@@ -113,8 +115,8 @@ export function AppProvider({ children }) {
         voiceChannels.map(async ch => [ch.id, await api.getVoiceParticipants(ch.id)])
       );
       setVoiceState(Object.fromEntries(voiceEntries));
-      const textCh = layout.channels.find(c => c.type === 'text');
-      if (textCh) selectChannel(textCh, server);
+      const defaultCh = layout.channels.find(c => c.type === 'text') || layout.channels[0];
+      if (defaultCh) selectChannel(defaultCh, server);
     } else {
       setCategories([]);
       setChannels([]);
@@ -126,6 +128,7 @@ export function AppProvider({ children }) {
     if (activeChannel?.id) emit('channel:leave', activeChannel.id);
     setActiveChannel(channel);
     setMessages([]);
+    setMobileView('main');
     if (channel) {
       if (channel.type !== 'voice') {
         emit('channel:join', channel.id);
@@ -133,6 +136,13 @@ export function AppProvider({ children }) {
         setMessages(msgs);
       }
     }
+  };
+
+  const leaveVoiceChannel = () => {
+    const textCh = channels.find(c => c.type === 'text' && c.id !== activeChannel?.id)
+      || channels.find(c => c.type === 'text');
+    if (textCh) selectChannel(textCh);
+    else setActiveChannel(null);
   };
 
   const createServer = async (name, icon) => {
@@ -170,6 +180,32 @@ export function AppProvider({ children }) {
     return channel;
   };
 
+  const updateChannel = async (id, name) => {
+    const updated = await api.updateChannel(id, name);
+    setChannels(c => c.map(x => x.id === id ? updated : x));
+    if (activeChannel?.id === id) setActiveChannel(updated);
+    return updated;
+  };
+
+  const deleteChannel = async (id) => {
+    const remaining = channels.filter(c => c.id !== id);
+    await api.deleteChannel(id);
+    setChannels(remaining);
+    if (activeChannel?.id === id) {
+      const next = remaining.find(c => c.type === 'text') || remaining[0];
+      if (next) selectChannel(next);
+      else {
+        setActiveChannel(null);
+        setMobileView('channels');
+      }
+    }
+  };
+
+  const deleteMessage = async (messageId) => {
+    await api.deleteMessage(messageId);
+    setMessages(m => m.filter(x => x.id !== messageId));
+  };
+
   const sendMessage = (content) => {
     if (!activeChannel || activeChannel.type === 'voice') return;
     emit('message:send', { channelId: activeChannel.id, content });
@@ -184,9 +220,27 @@ export function AppProvider({ children }) {
           return m;
         });
       }),
+      on('message:delete', ({ id, channelId }) => {
+        if (activeChannel?.id === channelId) {
+          setMessages(m => m.filter(x => x.id !== id));
+        }
+      }),
       on('channel:create', (ch) => {
         if (activeServer && ch.server_id === activeServer.id) {
           setChannels(c => c.find(x => x.id === ch.id) ? c : [...c, ch]);
+        }
+      }),
+      on('channel:update', (ch) => {
+        if (activeServer && ch.server_id === activeServer.id) {
+          setChannels(c => c.map(x => x.id === ch.id ? ch : x));
+          if (activeChannel?.id === ch.id) setActiveChannel(ch);
+        }
+      }),
+      on('channel:delete', ({ id }) => {
+        setChannels(c => c.filter(x => x.id !== id));
+        if (activeChannel?.id === id) {
+          setActiveChannel(null);
+          setMessages([]);
         }
       }),
       on('category:create', (cat) => {
@@ -211,10 +265,11 @@ export function AppProvider({ children }) {
 
   const value = {
     user, servers, activeServer, activeChannel, categories, channels, members, messages,
-    voiceState, settings, panel, loading,
+    voiceState, settings, panel, loading, mobileView, setMobileView,
     setPanel, login, logout, updateProfile, updateSettings,
-    selectServer, selectChannel, createServer, updateServer, joinServer,
-    createCategory, createChannel, sendMessage, setMessages, emit,
+    selectServer, selectChannel, leaveVoiceChannel, createServer, updateServer, joinServer,
+    createCategory, createChannel, updateChannel, deleteChannel,
+    sendMessage, deleteMessage, setMessages, emit,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
