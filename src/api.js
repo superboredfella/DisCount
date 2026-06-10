@@ -9,7 +9,17 @@ function headers(isJson = true) {
 }
 
 async function request(path, options = {}) {
-  const res = await fetch(`${API}${path}`, { ...options, headers: headers() });
+  // Determine if the payload is JSON based on whether options.body exists
+  const isJsonPayload = options.body ? true : false;
+
+  const res = await fetch(`${API}${path}`, {
+    ...options,
+    headers: {
+      ...headers(isJsonPayload),   // Inject standard JSON and Auth headers
+      ...(options.headers || {}),  // Deep merge any specific headers passed into the request call
+    },
+  });
+
   const data = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error(data.error || 'Request failed');
   return data;
