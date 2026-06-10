@@ -1,0 +1,9 @@
+node_modules
+dist
+server/discont.db
+server/discont.db-wal
+server/discont.db-shm
+server/uploads
+.git
+*.log
+.env

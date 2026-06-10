@@ -1,0 +1,146 @@
+.rail {
+  width: var(--server-rail-width);
+  background: var(--bg-primary);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 12px 0;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.serverBtn {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--bg-tertiary);
+  font-size: 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition);
+  position: relative;
+}
+
+.serverBtn:hover {
+  border-radius: 16px;
+  background: var(--accent);
+}
+
+.serverBtn.active {
+  border-radius: 16px;
+  background: var(--accent);
+}
+
+.serverBtn.active::before {
+  content: '';
+  position: absolute;
+  left: -12px;
+  width: 4px;
+  height: 20px;
+  background: white;
+  border-radius: 0 4px 4px 0;
+}
+
+.home {
+  background: var(--accent);
+}
+
+.add {
+  color: var(--success);
+  font-size: 1.5rem;
+  font-weight: 300;
+}
+
+.divider {
+  width: 32px;
+  height: 2px;
+  background: var(--border);
+  border-radius: 1px;
+}
+
+.spacer {
+  flex: 1;
+}
+
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+.modalCard {
+  background: var(--bg-secondary);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  width: 90%;
+  max-width: 400px;
+  border: 1px solid var(--border);
+}
+
+.modalCard h3 {
+  margin-bottom: 1rem;
+}
+
+.modalCard input {
+  width: 100%;
+  margin-top: 0.5rem;
+}
+
+.hint {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.iconPreview {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 0.5rem;
+}
+
+.iconPicker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin: 0.75rem 0 1rem;
+}
+
+.iconPicker button {
+  width: 36px;
+  height: 36px;
+  font-size: 1.1rem;
+  border-radius: var(--radius);
+  background: var(--bg-tertiary);
+}
+
+.iconPicker button.selected {
+  outline: 2px solid var(--accent);
+}
+
+.modalActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.modalActions button {
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-sm);
+}
+
+.primary {
+  background: var(--accent) !important;
+  color: white;
+  font-weight: 600;
+}
+
+.error {
+  color: var(--danger);
+  font-size: 0.85rem;
+  margin-top: 0.5rem;
+}

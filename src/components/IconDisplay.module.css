@@ -1,0 +1,24 @@
+.emoji {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.img {
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.sm { width: 32px; height: 32px; font-size: 1rem; }
+.md { width: 48px; height: 48px; font-size: 1.25rem; }
+.lg { width: 64px; height: 64px; font-size: 2rem; border-radius: 16px; }
+.rail { width: 100%; height: 100%; font-size: 1.25rem; border-radius: inherit; }
+
+.img.rail {
+  border-radius: inherit;
+}
+
+.img.lg {
+  border-radius: 16px;
+}

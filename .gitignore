@@ -1,0 +1,9 @@
+node_modules/
+dist/
+server/uploads/
+server/discont.db
+server/discont.db-wal
+server/discont.db-shm
+.env
+*.log
+.DS_Store

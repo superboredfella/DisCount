@@ -1,0 +1,211 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+}
+
+.panel {
+  background: var(--bg-secondary);
+  border-radius: var(--radius-lg);
+  width: 90%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+  border: 1px solid var(--border);
+  position: relative;
+}
+
+.close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  z-index: 10;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.banner {
+  height: 100px;
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  position: relative;
+}
+
+.bannerControls {
+  position: absolute;
+  bottom: 0.5rem;
+  right: 0.5rem;
+  left: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.35rem;
+}
+
+.bannerColors {
+  display: flex;
+  gap: 4px;
+}
+
+.clearBanner {
+  padding: 0.25rem 0.5rem;
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+}
+
+.avatarUpload {
+  margin-top: 0.5rem;
+}
+
+.bannerColors button {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+}
+
+.bannerColors button.selected {
+  border-color: white;
+}
+
+.avatarSection {
+  padding: 0 1.5rem;
+  margin-top: -40px;
+}
+
+.bigAvatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.5rem;
+  border: 4px solid var(--bg-secondary);
+}
+
+.body {
+  padding: 1rem 1.5rem 1.5rem;
+}
+
+.body h2 {
+  margin-bottom: 1.25rem;
+}
+
+.field {
+  margin-bottom: 1rem;
+}
+
+.field label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-secondary);
+  margin-bottom: 0.35rem;
+}
+
+.field input,
+.field textarea {
+  width: 100%;
+}
+
+.avatarGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.avatarGrid button {
+  width: 40px;
+  height: 40px;
+  font-size: 1.25rem;
+  border-radius: var(--radius);
+  background: var(--bg-tertiary);
+  transition: all var(--transition);
+}
+
+.avatarGrid button.selected {
+  outline: 2px solid var(--accent);
+}
+
+.colorRow {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.colorRow input[type="color"] {
+  width: 48px;
+  height: 36px;
+  padding: 2px;
+  border: none;
+  cursor: pointer;
+}
+
+.statusRow {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.statusRow button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--radius-sm);
+  text-align: left;
+  transition: background var(--transition);
+}
+
+.statusRow button:hover {
+  background: var(--bg-hover);
+}
+
+.statusRow button.active {
+  background: var(--accent-muted);
+}
+
+.statusRow button span {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.save {
+  width: 100%;
+  padding: 0.75rem;
+  background: var(--accent);
+  color: white;
+  font-weight: 600;
+  border-radius: var(--radius);
+  margin-top: 0.5rem;
+  transition: background var(--transition);
+}
+
+.save:hover:not(:disabled) {
+  background: var(--accent-hover);
+}
+
+.save:disabled {
+  opacity: 0.6;
+}
+
+.error {
+  color: var(--danger);
+  font-size: 0.85rem;
+  margin-bottom: 0.75rem;
+}

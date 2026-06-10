@@ -1,0 +1,244 @@
+.sidebar {
+  width: var(--sidebar-width);
+  background: var(--bg-secondary);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--border);
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1);
+  gap: 0.5rem;
+}
+
+.serverTitle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1;
+  min-width: 0;
+  text-align: left;
+  border-radius: var(--radius-sm);
+  padding: 0.15rem;
+  transition: background var(--transition);
+}
+
+.serverTitle:hover {
+  background: var(--bg-hover);
+}
+
+.header h2 {
+  font-size: 0.95rem;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.header > button:last-child {
+  font-size: 1rem;
+  opacity: 0.7;
+  transition: opacity var(--transition);
+  flex-shrink: 0;
+}
+
+.header > button:last-child:hover {
+  opacity: 1;
+}
+
+.channels {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0.75rem 0.5rem;
+}
+
+.categoryGroup {
+  margin-bottom: 0.75rem;
+}
+
+.category {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.25rem 0.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.category span {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+}
+
+.category button {
+  font-size: 1rem;
+  color: var(--text-muted);
+  opacity: 0;
+  transition: opacity var(--transition);
+}
+
+.category:hover button {
+  opacity: 1;
+}
+
+.channel {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  width: 100%;
+  padding: 0.4rem 0.5rem;
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  transition: all var(--transition);
+  text-align: left;
+}
+
+.channel:hover {
+  background: var(--bg-hover);
+  color: var(--text-secondary);
+}
+
+.channel.active {
+  background: var(--bg-active);
+  color: var(--text-primary);
+}
+
+.channelIcon {
+  font-size: 0.85rem;
+  opacity: 0.7;
+  width: 1rem;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.voiceCount {
+  margin-left: auto;
+  font-size: 0.7rem;
+  background: var(--success);
+  color: white;
+  padding: 0 0.35rem;
+  border-radius: 8px;
+}
+
+.voiceUsers {
+  padding-left: 1.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.voiceUser {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  padding: 0.2rem 0.5rem;
+}
+
+.voiceDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--success);
+  flex-shrink: 0;
+}
+
+.emptyCategory {
+  padding: 0.25rem 0.5rem 0.5rem;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.categoryActions {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.categoryActions button {
+  flex: 1;
+  padding: 0.35rem;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  border-radius: var(--radius-sm);
+  transition: all var(--transition);
+}
+
+.categoryActions button:hover {
+  background: var(--bg-hover);
+  color: var(--text-secondary);
+}
+
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+.modalCard {
+  background: var(--bg-secondary);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  width: 90%;
+  max-width: 400px;
+  border: 1px solid var(--border);
+}
+
+.modalCard h3 {
+  margin-bottom: 1rem;
+}
+
+.modalCard input,
+.modalCard select {
+  width: 100%;
+  margin-top: 0.5rem;
+}
+
+.typeRow {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.typeRow button {
+  flex: 1;
+  padding: 0.5rem;
+  border-radius: var(--radius-sm);
+  background: var(--bg-tertiary);
+  font-size: 0.85rem;
+}
+
+.typeActive {
+  background: var(--accent) !important;
+  color: white;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.actions button {
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-sm);
+}
+
+.primary {
+  background: var(--accent) !important;
+  color: white;
+  font-weight: 600;
+}

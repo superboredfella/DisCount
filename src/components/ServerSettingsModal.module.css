@@ -1,0 +1,88 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+.modal {
+  background: var(--bg-secondary);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  width: 90%;
+  max-width: 420px;
+  border: 1px solid var(--border);
+}
+
+.modal h3 {
+  margin-bottom: 1rem;
+}
+
+.preview {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 0.5rem;
+}
+
+.field {
+  margin: 1rem 0;
+}
+
+.field label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-secondary);
+  margin-bottom: 0.5rem;
+}
+
+.field input {
+  width: 100%;
+}
+
+.iconPicker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.iconPicker button {
+  width: 36px;
+  height: 36px;
+  font-size: 1.1rem;
+  border-radius: var(--radius);
+  background: var(--bg-tertiary);
+}
+
+.iconPicker button.selected {
+  outline: 2px solid var(--accent);
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.actions button {
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-sm);
+}
+
+.primary {
+  background: var(--accent) !important;
+  color: white;
+  font-weight: 600;
+}
+
+.error {
+  color: var(--danger);
+  font-size: 0.85rem;
+  margin-bottom: 0.75rem;
+}

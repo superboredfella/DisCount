@@ -1,0 +1,20 @@
+# Free deployment on Render — https://render.com
+# 1. Push this repo to GitHub
+# 2. Render Dashboard → New → Blueprint → connect repo
+# 3. Share your app URL with friends!
+
+services:
+  - type: web
+    name: discont
+    runtime: docker
+    plan: free
+    healthCheckPath: /
+    envVars:
+      - key: DATA_DIR
+        value: /data
+      - key: NODE_ENV
+        value: production
+    disk:
+      name: discont-data
+      mountPath: /data
+      sizeGB: 1
