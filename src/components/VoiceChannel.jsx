@@ -7,7 +7,7 @@ import UserPlate from './UserPlate';
 import styles from './VoiceChannel.module.css';
 
 export default function VoiceChannel() {
-  const { activeChannel, activeServer, leaveVoiceChannel, setMobileView } = useApp();
+  const { activeChannel, activeServer, leaveVoiceChannel, setMobileView, user } = useApp();
   const voice = useVoice(activeChannel?.id);
 
   useEffect(() => {
@@ -16,20 +16,29 @@ export default function VoiceChannel() {
     }
   }, [activeChannel?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  if (!activeServer || !activeChannel) return null;
+  // HARDENED SECURITY GUARD: If 401 error dropped your auth session, exit immediately!
+  if (!user || !activeServer || !activeChannel || !activeChannel.id) {
+    return (
+      <main className={styles.voice}>
+        <div className={styles.body}>
+          <p className={styles.status}>Authenticating or connection lost...</p>
+        </div>
+      </main>
+    );
+  }
 
   const handleLeave = () => {
     voice.leave();
     leaveVoiceChannel();
   };
 
-  const showConnecting = voice.joined && voice.participants.length === 0 && !voice.error;
+  const showConnecting = voice.joined && (!voice.participants || voice.participants.length === 0) && !voice.error;
 
   return (
     <main className={styles.voice}>
       <header className={styles.header}>
         <span className={styles.icon}>🔊</span>
-        <h2>{activeChannel.name}</h2>
+        <h2>{activeChannel.name || 'Voice Channel'}</h2>
         <button
           type="button"
           className={styles.membersBtn}
@@ -53,7 +62,8 @@ export default function VoiceChannel() {
         )}
 
         <div className={styles.grid}>
-          {voice.participants.map(p => (
+          {/* OPTIONAL CHAINING SAFETY: Prevents undefined crashes if socket disconnects */}
+          {voice.participants?.map(p => (
             <div
               key={p.userId}
               className={`${styles.card} ${p.muted ? styles.muted : ''}`}
