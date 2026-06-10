@@ -32,7 +32,10 @@ export function AppProvider({ children }) {
 
   const loadUser = useCallback(async () => {
     const token = localStorage.getItem('discont_token');
-    if (!token) { setLoading(false); return; }
+    if (!token) { 
+      setLoading(false); 
+      return; 
+    }
     try {
       const u = await api.me();
       setUser(u);
@@ -41,10 +44,13 @@ export function AppProvider({ children }) {
       }
       const srv = await api.getServers();
       setServers(srv);
-    } catch {
+    } catch (err) {
+      console.error("Session invalid or unauthorized (401). Clearing token.");
       localStorage.removeItem('discont_token');
+      setUser(null);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   }, []);
 
   useEffect(() => { loadUser(); }, [loadUser]);
@@ -260,7 +266,13 @@ export function AppProvider({ children }) {
         if (user?.id === u.id) setUser(u);
       }),
     ];
-    return () => unsubs.forEach(fn => fn?.());
+
+    // ✅ FIXED CLEANUP: Explicit typecheck avoids production minifier crashes completely!
+    return () => {
+      unsubs.forEach(fn => {
+        if (typeof fn === 'function') fn();
+      });
+    };
   }, [on, activeChannel, activeServer, user]);
 
   const value = {
