@@ -2,19 +2,19 @@
 # 1. Push this repo to GitHub
 # 2. Render Dashboard → New → Blueprint → connect repo
 # 3. Share your app URL with friends!
+#
+# Free tier notes:
+# - No persistent disk (data may reset on redeploy)
+# - Service sleeps after ~15 min idle; visiting the URL wakes it up (~30–60s)
 
 services:
   - type: web
     name: discont
-    runtime: docker
+    runtime: node
     plan: free
+    buildCommand: npm install && npm run build
+    startCommand: npm start
     healthCheckPath: /
     envVars:
-      - key: DATA_DIR
-        value: /data
       - key: NODE_ENV
         value: production
-    disk:
-      name: discont-data
-      mountPath: /data
-      sizeGB: 1

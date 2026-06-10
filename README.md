@@ -36,17 +36,23 @@ Open **http://localhost:3001** — single server serves everything.
 
 ### Option A: Deploy to Render (recommended)
 
-Render's free tier hosts Discont with a persistent disk so your data and photos survive restarts.
-
 1. Push this project to a **GitHub** repository
 2. Sign up at [render.com](https://render.com) (free)
 3. **New → Blueprint** → connect your repo (Render reads `render.yaml`)
-4. Wait for the deploy to finish (~5 min first time)
+4. Wait for the deploy to finish (~3–5 min first time)
 5. Share your URL: `https://discont-xxxx.onrender.com`
 
 Friends join via invite links like: `https://your-app.onrender.com/join/ABCD1234`
 
-> **Note:** Free Render apps sleep after 15 min of inactivity. The first visit after sleep takes ~30 seconds to wake up.
+**Free tier behavior:**
+
+| What | How it works |
+|------|----------------|
+| **Cold start** | Yes — if nobody has visited in ~15 min, the app sleeps. When a friend opens the URL, Render boots it automatically. Expect **30–60 seconds** before the page loads. |
+| **Data & photos** | Stored on the server’s local disk. This is **not permanent** on the free plan — accounts, messages, and uploads may be **lost when Render redeploys** or recycles the instance. Fine for hanging out with friends; not for long-term archiving. |
+| **Cost** | $0 — no credit card needed for the free web service. |
+
+If the Blueprint fails, create the service manually: **New → Web Service** → connect repo → Build: `npm install && npm run build` → Start: `npm start`.
 
 ### Option B: Quick tunnel (no deploy)
 
@@ -94,4 +100,4 @@ Friends must be on the same network.
 |------------|----------------------|--------------------------------------|
 | `PORT`     | `3001`               | Server port                          |
 | `HOST`     | `0.0.0.0`            | Bind address                         |
-| `DATA_DIR` | `server/` (local)    | SQLite DB + uploaded images path     |
+| `DATA_DIR` | `server/` (default)  | SQLite DB + uploaded images path     |
